@@ -40,14 +40,6 @@ class TI_DLL_EXPORT Kernel : public Callable {
     return ir_is_ast_;
   }
 
-  bool lowered() const {
-    return lowered_;
-  }
-
-  void set_lowered(bool lowered) const {
-    lowered_ = lowered;
-  }
-
   void compile(const CompileConfig &compile_config);
 
   void operator()(const CompileConfig &compile_config,
@@ -64,10 +56,6 @@ class TI_DLL_EXPORT Kernel : public Callable {
   std::vector<int64> get_ret_int_tensor(int i);
   std::vector<uint64> get_ret_uint_tensor(int i);
   std::vector<float64> get_ret_float_tensor(int i);
-
-  uint64 get_next_task_id() const {
-    return task_counter_++;
-  }
 
   [[nodiscard]] std::string get_name() const override;
 
@@ -89,11 +77,6 @@ class TI_DLL_EXPORT Kernel : public Callable {
   bool ir_is_ast_{false};
   // The closure that, if invoked, launches the backend kernel (shader)
   FunctionType compiled_{nullptr};
-  // A flag to record whether |ir| has been fully lowered.
-  // lower initial AST all the way down to a bunch of
-  // OffloadedStmt for async execution TODO(Lin): Check this comment
-  mutable bool lowered_{false};                  // TODO(PGZXB): Remove it
-  mutable std::atomic<uint64> task_counter_{0};  // TODO(PGZXB): Remove it
   mutable std::string kernel_key_;
 };
 

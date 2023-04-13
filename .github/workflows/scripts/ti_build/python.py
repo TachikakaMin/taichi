@@ -1,15 +1,22 @@
 # -*- coding: utf-8 -*-
 
+# -- stdlib --
 import os
 import platform
+import re
 import shutil
-from typing import Optional, Tuple
+import sys
+from typing import Tuple
 
+# -- third party --
+# -- own --
+from . import misc
 from .dep import download_dep
 from .misc import banner, get_cache_home, path_prepend
 from .tinysh import Command, sh
 
 
+# -- code --
 def setup_miniforge3(prefix):
     u = platform.uname()
     if u.system == "Linux":
@@ -41,13 +48,26 @@ def setup_miniforge3(prefix):
         raise RuntimeError(f"Unsupported platform: {u.system} {u.machine}")
 
 
+def get_desired_python_version() -> str:
+    version = misc.options.python
+    version = version or os.environ.get('PY', None)
+    v = sys.version_info
+    this_version = f'{v.major}.{v.minor}'
+
+    if version in ('3.x', '3', None):
+        assert v.major == 3
+        return this_version
+    elif version and re.match(r'^3\.\d+$', version):
+        return version
+    else:
+        raise RuntimeError(f'Unsupported Python version: {version}')
+
+
 @banner('Setup Python {version}')
-def setup_python(version: Optional[str] = None) -> Tuple[Command, Command]:
+def setup_python(version: str) -> Tuple[Command, Command]:
     '''
     Find the required Python environment and return the `python` and `pip` commands.
     '''
-    assert version
-
     windows = platform.system() == "Windows"
 
     prefix = get_cache_home() / 'miniforge3'

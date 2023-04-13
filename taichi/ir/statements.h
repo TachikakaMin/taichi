@@ -180,30 +180,26 @@ class ArgLoadStmt : public Stmt {
      ndarray, ...
 
      Therefore we need to add a field to indicate the type of the argument. For
-     now, only "is_ptr" and "field_dims" is needed.
+     now, only "is_ptr" is needed.
 
   */
   bool is_ptr;
 
   bool is_grad;
 
-  // field_dims of ndarray
-  int field_dims_ = 0;
+  bool create_load;
 
   ArgLoadStmt(int arg_id,
               const DataType &dt,
-              bool is_ptr = false,
-              bool is_grad = false)
-      : arg_id(arg_id) {
+              bool is_ptr,
+              bool is_grad,
+              bool create_load)
+      : arg_id(arg_id),
+        is_ptr(is_ptr),
+        is_grad(is_grad),
+        create_load(create_load) {
     this->ret_type = dt;
-    this->is_ptr = is_ptr;
-    this->is_grad = is_grad;
-    this->field_dims_ = -1;  // -1 means uninitialized
     TI_STMT_REG_FIELDS;
-  }
-
-  void set_extern_dims(int dims) {
-    this->field_dims_ = dims;
   }
 
   bool has_global_side_effect() const override {
